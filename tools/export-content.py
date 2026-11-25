@@ -34,10 +34,27 @@ for i,d in enumerate(data['documents']):
             elif label in ('Note','Architecture'):intro.append({'label':label,'text':txt})
     flush()
     topics.append({'id':ids[i],'title':short[i],'fullTitle':d['title'],'description':d['subtitle'],'category':cats[i],'pdf':d['file'],'sections':sections,'intro':intro,'questions':qs,'sources':[{'title':data['sources'][s][0],'url':data['sources'][s][1]} for s in d['sources']]})
+expansion=json.loads((ROOT/'content/advanced-library.json').read_text(encoding='utf-8'))
+for row in expansion['questions']:
+    t=next(t for t in topics if t['id']==row['topic'])
+    q={'id':t['id']+'-'+hashlib.sha1(row['title'].encode()).hexdigest()[:10],'title':row['title'],'section':row['section'],'kind':'Scenario' if row['title'].startswith('Scenario:') else 'Foundation' if row['title'].startswith('What ') else 'Deep dive','blocks':[],'followups':[{'question':a,'answer':b} for a,b in row['followups']]}
+    for key,label in [('simple','Simple'),('technical','Technical'),('formula','Formula'),('example','Example'),('architecture','Architecture'),('metrics','Metrics'),('tradeoffs','Trade-offs')]:
+        if row.get(key):q['blocks'].append({'label':label,'text':row[key]})
+    q['search']=' '.join([q['title'],q['section']]+[b['text'] for b in q['blocks']]+[f['question']+' '+f['answer'] for f in q['followups']]).lower()
+    assert not any(old['id']==q['id'] for old in t['questions']),q['title']
+    t['questions'].append(q)
+    if q['section'] not in t['sections']:t['sections'].append(q['section'])
+    row['lessonId']=q['id']
+extra_sources={
+ 'ml':[('scikit-learn: calibration','https://scikit-learn.org/stable/modules/calibration.html'),('scikit-learn: ensembles','https://scikit-learn.org/stable/modules/ensemble.html')],
+ 'aws':[('AWS: SQS duplicate delivery','https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/standard-queues-at-least-once-delivery.html'),('AWS: Lambda SQS error handling','https://docs.aws.amazon.com/lambda/latest/dg/services-sqs-errorhandling.html'),('AWS: RDS Multi-AZ deployment types','https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.MultiAZ.html'),('AWS: S3 VPC endpoints','https://docs.aws.amazon.com/vpc/latest/privatelink/vpc-endpoints-s3.html')]
+}
+for t in topics:
+    t['sources'].extend({'title':title,'url':link} for title,link in extra_sources.get(t['id'],[]))
 quiz=json.loads((ROOT/'content/mcp-quiz.json').read_text(encoding='utf-8'))
 mcp=[]
 for row in quiz['questions']:
-    q={'id':row['id'],'title':row['prompt'],'section':row['tag'],'kind':'Scenario' if row['tag']=='Incident' else 'Foundation','blocks':[{'label':'Simple','text':row['explanation']},{'label':'Technical','text':row['technical']}],'followups':[{'question':a,'answer':b} for a,b in row['followups']]}
+    q={'id':row['id'],'title':row['prompt'],'section':row['tag'],'kind':'Scenario' if row['tag']=='Incident' else 'Foundation','blocks':[{'label':'Simple','text':row['explanation']},{'label':'Technical','text':row['technical']},{'label':'Example','text':row.get('example',row['prompt']+' The correct response is: '+row['options'][row['correct']])}],'followups':[{'question':a,'answer':b} for a,b in row['followups']]}
     q['search']=' '.join([q['title']]+[b['text'] for b in q['blocks']]+[f['question']+' '+f['answer'] for f in q['followups']]).lower()
     mcp.append(q)
 topics.append({'id':'mcp','title':'MCP preparation','fullTitle':'Model Context Protocol: concepts and practice','description':quiz['description'],'category':'Build','pdf':'public-mcp.pdf','sections':list(dict.fromkeys(q['section'] for q in mcp)),'intro':[{'label':'Note','text':quiz['reference']}],'questions':mcp,'sources':quiz['sources']})
@@ -66,6 +83,24 @@ obj={'version':2,'edition':'25 November 2026','topics':public}
 (ROOT/'server').mkdir(exist_ok=True)
 (ROOT/'server/private-data.json').write_text(json.dumps({'topics':private,'protectedIds':protected},ensure_ascii=False),encoding='utf-8')
 (OUT/'data.js').write_text('window.PREP_DATA = '+json.dumps(obj,ensure_ascii=False)+';\n',encoding='utf-8')
-(OUT/'quiz-data.js').write_text('window.PREP_QUIZZES = '+json.dumps({'mcp':quiz},ensure_ascii=False)+';\n',encoding='utf-8')
+quizzes={t['id']:{'title':t['title'],'description':t['description'],'reference':expansion['reference'],'questions':[]} for t in public}
+def add_quiz(topic,lesson,prompt,options,explanation,technical,followups):
+    assert lesson['id'] not in protected,'Protected lesson used for quiz'
+    uid='quiz-'+hashlib.sha1((topic+prompt).encode()).hexdigest()[:12]
+    offset=int(hashlib.sha1(uid.encode()).hexdigest()[:4],16)%len(options)
+    rotated=options[offset:]+options[:offset]
+    quizzes[topic]['questions'].append({'id':uid,'topic':topic,'lessonId':lesson['id'],'tag':lesson['section'],'prompt':prompt,'options':rotated,'correct':(-offset)%len(options),'explanation':explanation,'technical':technical,'followups':followups})
+for row in expansion['questions']:
+    t=next(t for t in public if t['id']==row['topic']);lesson=next(q for q in t['questions'] if q['id']==row['lessonId'])
+    item=row['quiz'];add_quiz(t['id'],lesson,item['prompt'],item['options'],row['simple']+' '+row['example'],row['technical'],row['followups'])
+for topic,match,prompt,options,explanation in json.loads((ROOT/'content/general-quiz.json').read_text(encoding='utf-8')):
+    t=next(t for t in public if t['id']==topic)
+    matches=[q for q in t['questions'] if match.lower() in q['title'].lower()]
+    assert matches,('No quiz lesson match',topic,match)
+    q=matches[0];add_quiz(topic,q,prompt,options,explanation,next(b['text'] for b in q['blocks'] if b['label']=='Technical'),[[f['question'],f['answer']] for f in q['followups']])
+quizzes['mcp']={**quiz,'title':'MCP','questions':[{**q,'topic':'mcp','lessonId':q['id']} for q in quiz['questions']]}
+assert all(bank['questions'] for bank in quizzes.values()),'Every public track needs quiz questions'
+assert not restricted.search(json.dumps(quizzes,ensure_ascii=False)),'Protected project material reached a quiz'
+(OUT/'quiz-data.js').write_text('window.PREP_QUIZZES = '+json.dumps(quizzes,ensure_ascii=False)+';\n',encoding='utf-8')
 assert not restricted.search(json.dumps(obj,ensure_ascii=False)), 'Protected project content reached the public bundle'
 print(json.dumps({'publicTopics':len(public),'publicQuestions':sum(len(t['questions']) for t in public),'protectedProjectQuestions':len(protected),'mcpQuizQuestions':len(mcp)}))

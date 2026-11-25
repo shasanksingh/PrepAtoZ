@@ -51,3 +51,16 @@ Do not publish server/, private/, content/ or the repository root as static file
 See ACCOUNT-SETUP.txt for the database and administrator setup required online.
 Without a cloud database, public guest learning and quizzes still work, but
 online accounts and the administrator vault stay unavailable and fail closed.
+
+Quiz room and daily practice (v1.2)
+---------------------------------
+106 multiple-choice questions cover all 20 public tracks. Mixed rounds sample
+across tracks before repeating a track; choose 10, 20 or the full bank. Each
+answer locks on checking and reveals the explanation and answered follow-ups.
+The 379 public lessons retain every previous question and add 47 worked
+definitions, numerical drills and production/domain scenarios.
+Question of the day uses the device local calendar and the public bank only.
+Streaks count quiz answers, daily practice and self-assessed learning actions,
+not page visits. Account activity and topic scores sync with progress. Guest
+progress retains its original fixed 24-hour expiry. Download PDFs include the
+new explanations and formulas.

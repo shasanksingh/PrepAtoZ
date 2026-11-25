@@ -41,9 +41,10 @@ test('cross-origin mutation and malformed requests are rejected',async()=>{
  assert.equal((await call('auth/register','POST',{...REGISTER,email:'short@example.test',password:'short'})).status,400);
 });
 test('account progress is isolated and concurrent stale writes are rejected',async()=>{
- const secretId=protectedData.protectedIds[0],progress={version:2,questions:{'mcp-roles':{learned:true,note:'Learner note'},[secretId]:{note:'must not sync for regular user'}},last:secretId};
+ const secretId=protectedData.protectedIds[0],progress={version:2,questions:{'mcp-roles':{learned:true,note:'Learner note'},[secretId]:{note:'must not sync for regular user'}},last:secretId,quizzes:{ml:85,aws:75,mixed:90,mcp:100,invalid:Infinity},activity:{days:['2026-01-01','2026-01-01','2026-02-30'],daily:['2026-01-01','2025-12-31']}};
  const first=await call('progress','PUT',{progress,revision:0},learner.cookie);assert.equal(first.status,200);assert.equal(first.body.revision,1);
  const read=await call('progress','GET',undefined,learner.cookie);assert.equal(read.body.progress.questions['mcp-roles'].note,'Learner note');assert(!read.body.progress.questions[secretId]);assert.equal(read.body.progress.last,null);
+ assert.deepEqual(read.body.progress.quizzes,{ml:85,aws:75,mixed:90,mcp:100});assert.deepEqual(read.body.progress.activity,{days:['2026-01-01'],daily:['2026-01-01']});
  const second=await call('auth/register','POST',{...REGISTER,email:'other@example.test'});assert.equal((await call('progress','GET',undefined,second.cookie)).body.progress,null);
  assert.equal((await call('progress','PUT',{progress,revision:0},learner.cookie)).status,409);
  assert.equal((await call('progress','PUT',{progress,revision:1},learner.cookie)).body.revision,2);

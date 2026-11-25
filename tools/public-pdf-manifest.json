@@ -11,12 +11,12 @@
   },
   {
     "id": "llms",
-    "pages": 15,
+    "pages": 19,
     "file": "public-llms.pdf"
   },
   {
     "id": "rag",
-    "pages": 18,
+    "pages": 20,
     "file": "public-rag.pdf"
   },
   {
@@ -31,7 +31,7 @@
   },
   {
     "id": "agents",
-    "pages": 13,
+    "pages": 14,
     "file": "public-agents.pdf"
   },
   {
@@ -61,7 +61,7 @@
   },
   {
     "id": "domains",
-    "pages": 10,
+    "pages": 15,
     "file": "public-domains.pdf"
   },
   {
@@ -81,22 +81,22 @@
   },
   {
     "id": "systems",
-    "pages": 15,
+    "pages": 17,
     "file": "public-systems.pdf"
   },
   {
     "id": "ml",
-    "pages": 16,
+    "pages": 22,
     "file": "public-ml.pdf"
   },
   {
     "id": "aws",
-    "pages": 13,
+    "pages": 17,
     "file": "public-aws.pdf"
   },
   {
     "id": "mcp",
-    "pages": 9,
+    "pages": 10,
     "file": "public-mcp.pdf"
   }
 ]

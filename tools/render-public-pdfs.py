@@ -32,7 +32,7 @@ for t in data['topics']:
   if q['section']!=current:current=q['section'];story.append(Paragraph(esc(current),section))
   story.append(Paragraph(esc(q['title']),question))
   for b in q['blocks']:
-   if b['label']=='Code':story.append(KeepTogether([Preformatted(b['text'],code)]))
+   if b['label'] in ['Code','Formula']:story.append(KeepTogether([Preformatted(b['text'],code)]))
    else:story.append(Paragraph('<b>'+esc({'Simple':'In plain language','Technical':'Technical answer','Metrics':'Evaluation metrics','Trade-offs':'Production trade-offs','Say':'Spoken answer'}.get(b['label'],b['label']))+':</b> '+esc(b['text']),body))
   for f in q['followups']:story.append(Paragraph('<b>Follow-up: '+esc(f['question'])+'</b><br/>'+esc(f['answer']),body))
  story.extend([PageBreak(),Paragraph('Primary references',section)])

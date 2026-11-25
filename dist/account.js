@@ -1,12 +1,12 @@
 'use strict';
 (() => {
   const DAY = 86400000, GUEST = 'prepatoz-guest-v3', LEGACY = 'genai-interview-studio-v2';
-  const empty = () => ({ version: 2, questions: {}, last: null, quizzes: {} });
+  const empty = () => ({ version: 2, questions: {}, last: null, quizzes: {}, activity: { days: [], daily: [] } });
   const publicIds = new Set(window.PREP_DATA.topics.flatMap(t => t.questions.map(q => q.id)));
   const read = key => { try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } };
   const write = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch { return false; } };
   const remove = key => { try { localStorage.removeItem(key); } catch {} };
-  const sanitizeGuest = value => ({ ...empty(), questions: Object.fromEntries(Object.entries(value?.questions || {}).filter(([id]) => publicIds.has(id))), last: publicIds.has(value?.last) ? value.last : null, quizzes: value?.quizzes || {} });
+  const sanitizeGuest = value => ({ ...empty(), questions: Object.fromEntries(Object.entries(value?.questions || {}).filter(([id]) => publicIds.has(id))), last: publicIds.has(value?.last) ? value.last : null, quizzes: value?.quizzes || {}, activity: {days:window.PrepStudy.cleanDays(value?.activity?.days),daily:window.PrepStudy.cleanDays(value?.activity?.daily)} });
   let user = null, available = false, current = empty(), revision = 0, pending, syncing = false, conflict = false;
   let guest = read(GUEST);
   if (!guest || !Number.isFinite(guest.expiresAt) || guest.expiresAt <= Date.now()) {

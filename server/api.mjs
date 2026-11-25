@@ -4,6 +4,7 @@ import { resolve } from 'node:path';
 import { database, configured } from './db.mjs';
 import { digest, token, hashSecret, checkSecret, normalizeAnswer } from './crypto.mjs';
 import privateData from './private-data.json' with { type: 'json' };
+import study from '../dist/study-tools.js';
 
 const COOKIE = 'prepatoz_session';
 const SESSION_MS = 7 * 24 * 60 * 60 * 1000;
@@ -55,14 +56,19 @@ async function startSession(db, user, request) {
 }
 function cleanProgress(value, admin) {
   if (!value || value.version !== 2 || !value.questions || Array.isArray(value.questions) || typeof value.questions !== 'object') fail(400, 'Invalid progress backup.');
-  const blocked = new Set(privateData.topics.flatMap(t => t.questions.map(q => q.id)));
+  const blocked = new Set(privateData.protectedIds);
   const questions = {};
   for (const [id, entry] of Object.entries(value.questions).slice(0, 1000)) {
     if (!/^[a-z][\w-]{1,80}$/.test(id) || !entry || typeof entry !== 'object' || !admin && blocked.has(id)) continue;
     questions[id] = { learned: entry.learned === true, bookmarked: entry.bookmarked === true, rating: ['ready', 'review'].includes(entry.rating) ? entry.rating : null, note: typeof entry.note === 'string' ? entry.note.slice(0, 20000) : '' };
   }
   const last = typeof value.last === 'string' && !(!admin && blocked.has(value.last)) ? value.last.slice(0, 100) : null;
-  const result = { version: 2, questions, last, quizzes: value.quizzes && typeof value.quizzes === 'object' && !Array.isArray(value.quizzes) ? { mcp: Math.max(0, Math.min(100, Number(value.quizzes.mcp) || 0)) } : {} };
+  const quizzes = {};
+  if(value.quizzes && typeof value.quizzes === 'object' && !Array.isArray(value.quizzes)) for(const [key,score] of Object.entries(value.quizzes).slice(0,40)) {
+    if(/^[a-z][a-z0-9-]{0,40}$/.test(key) && Number.isFinite(score)) quizzes[key]=Math.max(0,Math.min(100,score));
+  }
+  const today=study.shift(study.dayKey(),1),days=study.cleanDays(value.activity?.days,today);
+  const result = { version: 2, questions, last, quizzes, activity: {days,daily:study.cleanDays(value.activity?.daily,today).filter(day=>days.includes(day))} };
   if (Buffer.byteLength(JSON.stringify(result)) > 250000) fail(413, 'Progress exceeds 250 KB. Export older notes or shorten them.');
   return result;
 }
