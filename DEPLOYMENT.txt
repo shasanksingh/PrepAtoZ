@@ -1,0 +1,30 @@
+PrepAtoZ - GitHub and Netlify
+===========================
+
+Local preview: npm start, then http://127.0.0.1:4173
+Publish folder: dist
+Build command: npm run check
+Node version: 22
+Routing: hash-based, so no SPA catch-all redirect is required.
+
+Netlify deployment
+------------------
+1. Sign in to your Netlify account and select your intended team.
+2. Set the team's default project visibility to Private before creating the
+   project, or create/configure a Private project before its first deployment.
+   If private hosting is unavailable on the account, stop and choose an approved
+   access-control option rather than silently exposing the personalized guide.
+3. Import the private PrepAtoZ GitHub repository. Grant access to that repository
+   only. Check the Private visibility and the settings above, then deploy.
+4. Confirm the deployed URL works while signed in and that an unrelated signed-
+   out session cannot access index.html, data.js or /pdfs/ directly.
+5. Future pushes to the selected production branch can trigger automatic builds.
+
+For manual deployment, upload the contents of dist to an already-private project.
+The companion ZIP contains the static site files at its root, ready for upload.
+Do not assume a private GitHub repository also makes a Netlify URL private.
+No Netlify credentials are included in this project.
+
+Source docs:
+https://docs.netlify.com/manage/security/secure-access-to-sites/project-visibility/
+https://docs.netlify.com/configure-builds/overview/

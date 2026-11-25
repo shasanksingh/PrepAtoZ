@@ -1,0 +1,12 @@
+{
+  "name": "prepatoz",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A personal AI engineering and cloud interview study desk.",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node server.cjs",
+    "dev": "node server.cjs",
+    "check": "node --check dist/app.js && node tools/validate.cjs"
+  }
+}

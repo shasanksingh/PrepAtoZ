@@ -1,0 +1,9 @@
+.openai/
+.netlify/
+node_modules/
+.env
+.env.*
+!.env.example
+*.log
+*progress*.json
+*backup*.json

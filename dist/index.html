@@ -1,0 +1,46 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="PrepAtoZ: an interactive study desk for AI engineering, machine learning, cloud architecture and interview practice.">
+<meta name="theme-color" content="#172827">
+<meta name="robots" content="noindex,nofollow">
+<title>PrepAtoZ — AI engineering, one good answer at a time</title>
+<link rel="icon" type="image/svg+xml" href="logo.svg">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="prepatoz.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div id="overlay" class="overlay" hidden></div>
+<aside id="sidebar" class="sidebar">
+<a class="brand" href="#home" aria-label="PrepAtoZ home"><img class="brand-logo" src="logo.svg" alt="AI" width="39" height="39"><span>Prep<span class="brand-a">AtoZ</span><small>THE ENGINEER'S STUDY DESK</small></span></a>
+<p class="side-label">MAKE IT CLICK</p>
+<nav aria-label="Main navigation" id="nav">
+<a href="#home" data-nav="home"><span aria-hidden="true">⌂</span>Your desk</a>
+<a href="#learn" data-nav="learn"><span aria-hidden="true">▤</span>Study tracks</a>
+<a href="#interview" data-nav="interview"><span aria-hidden="true">◇</span>Question bank</a>
+<a href="#scenarios" data-nav="scenarios"><span aria-hidden="true">▧</span>Scenario lab</a>
+<a href="#saved" data-nav="saved"><span aria-hidden="true">☆</span>Saved & review</a>
+<a href="#progress" data-nav="progress"><span aria-hidden="true">◷</span>My progress</a>
+</nav>
+<div class="side-divider"></div>
+<p class="side-label">QUICK ACCESS</p>
+<a class="side-link" href="#topic/resume/interview">Resume prep</a>
+<a class="side-link" href="#topic/rag/learn">RAG & retrieval</a>
+<a class="side-link" href="#topic/ml/learn">ML foundations</a>
+<a class="side-link" href="#topic/aws/learn">AWS & scaling</a>
+<div class="side-bottom"><div class="avatar">SS</div><div><strong>Shashank's workspace</strong><small>A little practice, every day.</small></div></div>
+</aside>
+<div class="workspace">
+<header class="topbar">
+<button id="menu" class="icon-btn menu" aria-label="Open navigation" aria-expanded="false">☰</button>
+<form id="search-form" role="search" class="search"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="search" type="search" aria-label="Search questions, definitions and follow-ups" placeholder="Search questions, concepts, follow-ups..."><kbd>/</kbd></form>
+<div class="top-actions"><button class="icon-btn" id="theme-toggle" data-action="theme" aria-label="Switch color theme" title="Switch color theme">◐</button><a class="btn small top-link" href="#scenarios">Take a challenge</a></div>
+</header>
+<main id="main" tabindex="-1"></main>
+<footer class="footer"><strong>PrepAtoZ</strong> · Understand it. Build it. Explain it.<br><span>Your progress stays in this browser. Export a backup to move devices. Practice feedback is self-assessment.</span></footer>
+</div>
+<div id="toast" role="status" aria-live="polite" class="toast" hidden></div>
+<script src="data.js"></script><script src="app.js"></script>
+</body></html>
