@@ -7,12 +7,6 @@
   node_bundler = "esbuild"
   included_files = ["private/pdfs/**"]
 
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/api/:splat"
-  status = 200
-  force = true
-
 [build.environment]
   NODE_VERSION = "22"
   # The reserved admin email is an identifier documented in the setup files.
