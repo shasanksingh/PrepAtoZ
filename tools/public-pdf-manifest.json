@@ -1,0 +1,102 @@
+[
+  {
+    "id": "start",
+    "pages": 4,
+    "file": "public-start.pdf"
+  },
+  {
+    "id": "python",
+    "pages": 11,
+    "file": "public-python.pdf"
+  },
+  {
+    "id": "llms",
+    "pages": 15,
+    "file": "public-llms.pdf"
+  },
+  {
+    "id": "rag",
+    "pages": 18,
+    "file": "public-rag.pdf"
+  },
+  {
+    "id": "vectors",
+    "pages": 9,
+    "file": "public-vectors.pdf"
+  },
+  {
+    "id": "evaluation",
+    "pages": 8,
+    "file": "public-evaluation.pdf"
+  },
+  {
+    "id": "agents",
+    "pages": 13,
+    "file": "public-agents.pdf"
+  },
+  {
+    "id": "backend",
+    "pages": 8,
+    "file": "public-backend.pdf"
+  },
+  {
+    "id": "gpu",
+    "pages": 8,
+    "file": "public-gpu.pdf"
+  },
+  {
+    "id": "training",
+    "pages": 9,
+    "file": "public-training.pdf"
+  },
+  {
+    "id": "sql",
+    "pages": 6,
+    "file": "public-sql.pdf"
+  },
+  {
+    "id": "deployment",
+    "pages": 8,
+    "file": "public-deployment.pdf"
+  },
+  {
+    "id": "domains",
+    "pages": 10,
+    "file": "public-domains.pdf"
+  },
+  {
+    "id": "resume",
+    "pages": 6,
+    "file": "public-resume.pdf"
+  },
+  {
+    "id": "mock",
+    "pages": 5,
+    "file": "public-mock.pdf"
+  },
+  {
+    "id": "tooling",
+    "pages": 7,
+    "file": "public-tooling.pdf"
+  },
+  {
+    "id": "systems",
+    "pages": 15,
+    "file": "public-systems.pdf"
+  },
+  {
+    "id": "ml",
+    "pages": 16,
+    "file": "public-ml.pdf"
+  },
+  {
+    "id": "aws",
+    "pages": 13,
+    "file": "public-aws.pdf"
+  },
+  {
+    "id": "mcp",
+    "pages": 9,
+    "file": "public-mcp.pdf"
+  }
+]

@@ -1,0 +1,63 @@
+PrepAtoZ account setup
+=====================
+
+What already works locally
+--------------------------
+Node 22.13+, npm ci --omit=optional, then npm start.
+SQLite is created in .local/prepatoz.sqlite (ignored by Git).
+Registration, secret-question password reset, login, logout and progress sync
+use the same account API locally and on Netlify.
+
+Administrator
+-------------
+Reserved email: singhshasank50@gmail.com
+Run npm run setup:admin in this project folder. Choose a password of at least
+12 characters; input is hidden. The helper stores the email and a salted scrypt
+password hash in the ignored .env file. It never stores the plain password.
+Public registration cannot claim the reserved email or request an admin role.
+For admin recovery, rerun the owner setup command; security-answer-only recovery
+is limited to regular accounts. Resetting a regular password revokes sessions.
+
+Persistent SQLite-compatible storage on Netlify
+-----------------------------------------------
+An ordinary SQLite file inside a serverless function is not a shared durable
+database. This app deliberately refuses that fallback in production.
+
+1. Create a Turso account and a small libSQL-compatible database.
+   https://docs.turso.tech/libsql
+2. Obtain its database URL and a database-scoped auth token. Keep them private.
+3. In the existing Netlify project, add these environment variables with Functions
+   scope (production context):
+       TURSO_DATABASE_URL
+       TURSO_AUTH_TOKEN
+       PREPATOZ_ADMIN_EMAIL
+       PREPATOZ_ADMIN_PASSWORD_HASH
+   The last two values come from your local .env after npm run setup:admin.
+   Do not put these values in frontend files or commit .env.
+4. Redeploy the GitHub project. Tables and the configured admin account are
+   initialized automatically. Sign in using your chosen plain password.
+
+If cloud storage is not configured yet, the public library, PDFs and MCP quiz
+work as a guest. Online login/register and protected admin content remain
+unavailable. No default or shared administrator password is included.
+
+Storage and sessions
+--------------------
+Users, opaque hashed sessions, progress and throttling counters use small SQL
+tables. Passwords and secret answers use independently salted scrypt hashes.
+Session cookies are HttpOnly, SameSite=Lax and Secure on HTTPS, with a seven-day
+maximum lifetime. Guest progress has a fixed 24-hour browser lifetime.
+Progress is limited to 250 KB per account; conflicting tab updates are rejected
+instead of silently overwriting another revision. Project content is not in
+the account database: it remains in the server-only function bundle.
+
+Checks
+------
+npm run check: content separation, valid quiz answers and static asset checks.
+npm test: real SQLite tests for auth, role boundaries, recovery, expiry, rate
+limiting, protected PDFs and progress isolation.
+
+Old deployments
+---------------
+Remove or restrict old Netlify deployments containing the previous public
+data.js and PDFs. New access controls cannot retract old downloaded copies.

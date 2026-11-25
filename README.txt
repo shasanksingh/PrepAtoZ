@@ -2,13 +2,14 @@ PrepAtoZ
 ========
 A personal AI-engineering interview study desk with concepts, worked examples,
 architecture incidents, detailed follow-ups, self-assessment and PDF guides.
-19 tracks, 335 main questions, 769 answered follow-ups and 60 scenario drills.
+20 public study tracks with 332 questions, plus 23 protected project questions
+for the administrator. The dedicated MCP quiz has 20 single-answer questions.
 
 Run
 ---
-No dependencies or API key are required.
-Run `npm start` in this folder and open http://127.0.0.1:4173.
-For offline use, open dist/index.html directly.
+Use Node 22.13 or later. Run `npm ci --omit=optional`, then `npm start` in this
+folder and open http://127.0.0.1:4173. Local accounts use SQLite automatically.
+For offline guest-only use, open dist/index.html directly.
 Run `npm run check` to check the content contract and JavaScript syntax.
 The editable bank is content/library.json. After changing it, run
 `python tools/export-content.py` to regenerate dist/data.js. Existing question
@@ -26,10 +27,12 @@ Focus mode and light/dark themes support longer study sessions.
 Progress
 --------
 Notes, bookmarks and self-assessments are stored in this browser's localStorage.
-They are not uploaded or synchronized. Export/import from My progress to move
-between the file, localhost, a hosted origin or another browser.
-The original storage key and question IDs were retained during the redesign.
-There is no live AI judge or model endpoint; practice feedback is self-assessment.
+Guest progress expires 24 hours after the guest visit starts; this is not a
+sliding expiration. Signing in syncs progress to the account database. Local
+account caches are scoped per user and removed on sign-out. Export/import from
+My progress is also available. Existing question IDs are preserved.
+There is no live AI judge or model endpoint. Free-text interview rehearsal uses
+self-assessment; the MCP quiz checks choices against an explained answer key.
 
 Content
 -------
@@ -39,8 +42,12 @@ Framework APIs and cloud service limits change; consult the linked primary docs.
 
 Hosting
 -------
-netlify.toml publishes dist and runs the content check before building.
-Use a PRIVATE GitHub repository. Configure Netlify project visibility as Private
-before uploading/deploying this personalized library. robots.txt/noindex only
-discourage indexing; they are not access control. Do not publish secrets or notes.
-See DEPLOYMENT.txt for the remaining Netlify steps.
+netlify.toml publishes dist, bundles the API function and runs content checks.
+General material can be public. SQL Copilot project questions and original
+project PDFs are server-only and require an authenticated admin role. General
+SQL basics and other project questions remain public. Memorae AI is unchanged.
+Use a PRIVATE GitHub repository because it contains the private source bank.
+Do not publish server/, private/, content/ or the repository root as static files.
+See ACCOUNT-SETUP.txt for the database and administrator setup required online.
+Without a cloud database, public guest learning and quizzes still work, but
+online accounts and the administrator vault stay unavailable and fail closed.

@@ -9,21 +9,23 @@ Routing: hash-based, so no SPA catch-all redirect is required.
 
 Netlify deployment
 ------------------
-1. Sign in to your Netlify account and select your intended team.
-2. Set the team's default project visibility to Private before creating the
-   project, or create/configure a Private project before its first deployment.
-   If private hosting is unavailable on the account, stop and choose an approved
-   access-control option rather than silently exposing the personalized guide.
-3. Import the private PrepAtoZ GitHub repository. Grant access to that repository
-   only. Check the Private visibility and the settings above, then deploy.
-4. Confirm the deployed URL works while signed in and that an unrelated signed-
-   out session cannot access index.html, data.js or /pdfs/ directly.
-5. Future pushes to the selected production branch can trigger automatic builds.
+1. Connect the existing prepatoz project to shasanksingh/PrepAtoZ, branch main.
+   Keep this GitHub repository private. The website's general library may be public.
+2. Use netlify.toml: publish directory dist, functions directory netlify/functions,
+   Node 22 and build command npm run check. Do not publish the repository root.
+3. Follow ACCOUNT-SETUP.txt to connect persistent cloud SQLite-compatible storage
+   and configure the reserved administrator account through Functions env vars.
+4. Redeploy and confirm public learning works without signing in, a regular
+   account cannot open /api/admin/content, and the admin can open its vault.
+5. Delete or restrict previous Netlify deploy snapshots that contain the old
+   public project data. Protecting this release cannot erase previously shared
+   files or make old deployment URLs private automatically.
 
-For manual deployment, upload the contents of dist to an already-private project.
-The companion ZIP contains the static site files at its root, ready for upload.
-Do not assume a private GitHub repository also makes a Netlify URL private.
-No Netlify credentials are included in this project.
+Do not use a static-only drag-and-drop deployment for accounts: it cannot deploy
+the server API or access-control functions. The refreshed companion ZIP contains
+only safe public static files for guest-only use; it does not contain private
+content, credentials or a login backend. Deploy the GitHub project for accounts.
+No live Netlify or database credentials are committed to this repository.
 
 Source docs:
 https://docs.netlify.com/manage/security/secure-access-to-sites/project-visibility/

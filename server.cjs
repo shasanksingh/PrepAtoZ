@@ -4,7 +4,20 @@ const path = require('node:path');
 const root = path.resolve(__dirname, 'dist');
 const types = {'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'application/javascript; charset=utf-8','.svg':'image/svg+xml','.pdf':'application/pdf','.txt':'text/plain; charset=utf-8'};
 const port = Number(process.env.PORT || 4173);
-http.createServer((req,res) => {
+const {loadEnvFile}=require('node:process');
+try{loadEnvFile(path.join(__dirname,'.env'));}catch{}
+http.createServer(async (req,res) => {
+ if(![`127.0.0.1:${port}`,`localhost:${port}`].includes(req.headers.host)){res.writeHead(403);return res.end('Unrecognized host');}
+ if(req.url.startsWith('/api/')){
+  try{
+   const {handleApi}=await import('./server/api.mjs');
+   const chunks=[];let size=0;
+   for await(const chunk of req){size+=chunk.length;if(size>300000){res.writeHead(413);return res.end('Request too large');}chunks.push(chunk);}
+   const request=new Request(`http://${req.headers.host}${req.url}`,{method:req.method,headers:req.headers,...(!['GET','HEAD'].includes(req.method)?{body:Buffer.concat(chunks)}:{})});
+   const response=await handleApi(request,{ip:req.socket.remoteAddress});
+   res.writeHead(response.status,Object.fromEntries(response.headers));return res.end(Buffer.from(await response.arrayBuffer()));
+  }catch(error){console.error('Local API failed:',error.name);res.writeHead(503,{'Content-Type':'application/json'});return res.end(JSON.stringify({error:'Local service is unavailable.'}));}
+ }
  let filename;
  try { filename = path.resolve(root, '.' + decodeURIComponent(new URL(req.url,'http://localhost').pathname)); }
  catch { res.writeHead(400); return res.end('Invalid path'); }

@@ -34,6 +34,38 @@ for i,d in enumerate(data['documents']):
             elif label in ('Note','Architecture'):intro.append({'label':label,'text':txt})
     flush()
     topics.append({'id':ids[i],'title':short[i],'fullTitle':d['title'],'description':d['subtitle'],'category':cats[i],'pdf':d['file'],'sections':sections,'intro':intro,'questions':qs,'sources':[{'title':data['sources'][s][0],'url':data['sources'][s][1]} for s in d['sources']]})
-obj={'version':2,'edition':'25 November 2026','topics':topics}
+quiz=json.loads((ROOT/'content/mcp-quiz.json').read_text(encoding='utf-8'))
+mcp=[]
+for row in quiz['questions']:
+    q={'id':row['id'],'title':row['prompt'],'section':row['tag'],'kind':'Scenario' if row['tag']=='Incident' else 'Foundation','blocks':[{'label':'Simple','text':row['explanation']},{'label':'Technical','text':row['technical']}],'followups':[{'question':a,'answer':b} for a,b in row['followups']]}
+    q['search']=' '.join([q['title']]+[b['text'] for b in q['blocks']]+[f['question']+' '+f['answer'] for f in q['followups']]).lower()
+    mcp.append(q)
+topics.append({'id':'mcp','title':'MCP preparation','fullTitle':'Model Context Protocol: concepts and practice','description':quiz['description'],'category':'Build','pdf':'public-mcp.pdf','sections':list(dict.fromkeys(q['section'] for q in mcp)),'intro':[{'label':'Note','text':quiz['reference']}],'questions':mcp,'sources':quiz['sources']})
+
+# Do not ship protected project answers or their full PDFs in the static site.
+from copy import deepcopy
+restricted=re.compile(r'sql\s*copilot|memorae?(?:[\s_-]*ai)?',re.I)
+public=[];private=[];protected=[]
+for original in topics:
+    hidden=[q for q in original['questions'] if restricted.search(json.dumps(q,ensure_ascii=False)) or original['id']=='sql' and q['section']=='Plan before generating']
+    if hidden:
+        secured=deepcopy(original);secured['privatePdf']=original['pdf']
+        for q in secured['questions']:q['adminOnly']=q in hidden
+        private.append(secured);protected.extend(q['id'] for q in hidden)
+    safe=deepcopy(original)
+    safe['questions']=[q for q in safe['questions'] if q['id'] not in protected]
+    if not safe['questions']:continue
+    safe['intro']=[b for b in safe['intro'] if not restricted.search(b['text'])]
+    safe['sections']=list(dict.fromkeys(q['section'] for q in safe['questions']))
+    if safe['id']=='sql':
+        safe.update(title='SQL & databases',fullTitle='SQL and database fundamentals',description='Queries, joins, transactions, schemas and database reasoning')
+    safe['description']=restricted.sub('SQL applications',safe['description'])
+    safe['pdf']='public-'+safe['id']+'.pdf'
+    public.append(safe)
+obj={'version':2,'edition':'25 November 2026','topics':public}
+(ROOT/'server').mkdir(exist_ok=True)
+(ROOT/'server/private-data.json').write_text(json.dumps({'topics':private,'protectedIds':protected},ensure_ascii=False),encoding='utf-8')
 (OUT/'data.js').write_text('window.PREP_DATA = '+json.dumps(obj,ensure_ascii=False)+';\n',encoding='utf-8')
-print(json.dumps({'topics':len(topics),'questions':sum(len(t['questions']) for t in topics),'followups':sum(len(q['followups']) for t in topics for q in t['questions'])}))
+(OUT/'quiz-data.js').write_text('window.PREP_QUIZZES = '+json.dumps({'mcp':quiz},ensure_ascii=False)+';\n',encoding='utf-8')
+assert not restricted.search(json.dumps(obj,ensure_ascii=False)), 'Protected project content reached the public bundle'
+print(json.dumps({'publicTopics':len(public),'publicQuestions':sum(len(t['questions']) for t in public),'protectedProjectQuestions':len(protected),'mcpQuizQuestions':len(mcp)}))
