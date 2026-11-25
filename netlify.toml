@@ -15,6 +15,9 @@
 
 [build.environment]
   NODE_VERSION = "22"
+  # The reserved admin email is an identifier documented in the setup files.
+  # Keep secret scanning enabled for database credentials and password hashes.
+  SECRETS_SCAN_OMIT_KEYS = "PREPATOZ_ADMIN_EMAIL"
 
 [[headers]]
   for = "/*"

@@ -34,6 +34,11 @@ database. This app deliberately refuses that fallback in production.
        PREPATOZ_ADMIN_PASSWORD_HASH
    The last two values come from your local .env after npm run setup:admin.
    Do not put these values in frontend files or commit .env.
+   Mark TURSO_AUTH_TOKEN and PREPATOZ_ADMIN_PASSWORD_HASH as secret values.
+   The admin email is an identifier already documented in this repository.
+   netlify.toml excludes only PREPATOZ_ADMIN_EMAIL from secret scanning so an
+   email marked as secret in the dashboard does not block deployment. Database
+   credentials and password hashes remain covered by secret scanning.
 4. Redeploy the GitHub project. Tables and the configured admin account are
    initialized automatically. Sign in using your chosen plain password.
 
